@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>간결한 화분 관리</title><style>
+    <title>간결한 화분 관리</title>
+    <style>
+        /* 컨텐츠 폭을 300px로 좁게 잡고 중앙 정렬 */
         body { 
             font-family: sans-serif; 
-            max-width: 380px; 
-            margin: 10px auto; 
-            padding: 0 10px; 
+            max-width: 300px; 
+            margin: 20px auto; 
+            padding: 0 20px; 
             background: #f9f9f9; 
             color: #333; 
         }
-        h1 { font-size: 1.1rem; text-align: center; margin: 12px 0; }
+        h1 { font-size: 1.1rem; text-align: center; margin-bottom: 15px; }
         #loading { text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 10px; }
         
         .plant-item { 
@@ -22,32 +24,24 @@
             border-radius: 6px; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
             display: flex; 
+            justify-content: space-between; 
             align-items: center; 
-            /* space-between을 제거하여 양 끝으로 벌어지지 않게 함 */
         }
         
         .plant-name { 
             font-weight: bold; 
             font-size: 0.9rem; 
-            flex-grow: 1; /* 이름이 남은 공간을 채우되, 오른쪽 요소와 바로 붙음 */
-            margin-right: 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
         
         .plant-right {
             display: flex;
             align-items: center;
             gap: 8px; 
-            flex-shrink: 0; 
         }
 
         .plant-days { 
             color: #666; 
             font-size: 0.8rem; 
-            width: 50px; 
-            text-align: right; 
         }
         
         button { 
