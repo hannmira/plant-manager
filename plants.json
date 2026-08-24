@@ -1,5 +1,17 @@
 [
-  { "id": 1, "name": "스킨답서스", "lastWatered": "2026-08-20" },
-  { "id": 2, "name": "몬스테라", "lastWatered": "2026-08-18" },
-  { "id": 3, "name": "산세베리아", "lastWatered": "2026-08-10" }
+  { "id": 1, "name": "이오난사", "lastWatered": "2026-08-24" },
+  { "id": 2, "name": "스파티필룸", "lastWatered": "2026-08-19" },
+  { "id": 3, "name": "엔조이스킨답서스", "lastWatered": "2026-08-19" },
+  { "id": 4, "name": "핑크 트리안", "lastWatered": "2026-08-20" },
+  { "id": 5, "name": "백묘국", "lastWatered": "2026-08-19" },
+  { "id": 6, "name": "올리브", "lastWatered": "2026-08-19" },
+  { "id": 7, "name": "로즈마리1", "lastWatered": "2026-08-19" },
+  { "id": 8, "name": "로즈마리2", "lastWatered": "2026-08-15" },
+  { "id": 9, "name": "세덤아틀란티스", "lastWatered": "2026-08-15" },
+  { "id": 10, "name": "황금세덤", "lastWatered": "2026-08-15" },
+  { "id": 11, "name": "바위솔", "lastWatered": "2026-08-15" },
+  { "id": 12, "name": "오팔리나", "lastWatered": "2026-08-24" },
+  { "id": 13, "name": "먼로", "lastWatered": "2026-08-24" },
+  { "id": 14, "name": "복랑", "lastWatered": "2026-08-24" },
+  { "id": 15, "name": "마커스", "lastWatered": "2026-08-24" }
 ]
