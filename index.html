@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>간결한 화분 관리</title>
+    <title>정렬된 화분 관리</title>
     <style>
         body { font-family: sans-serif; max-width: 500px; margin: 15px auto; padding: 10px; background: #f9f9f9; color: #333; }
         h1 { font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
         #loading { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 10px; }
         
-        /* 컴팩트한 리스트 스타일 */
+        /* 컴팩트하고 정렬된 리스트 스타일 */
         .plant-item { 
             background: #fff; 
             padding: 8px 12px; 
@@ -20,9 +20,28 @@
             justify-content: space-between; 
             align-items: center; 
         }
-        .plant-info { font-size: 0.95rem; }
-        .plant-info .name { font-weight: bold; margin-right: 8px; }
-        .plant-info .days { color: #666; font-size: 0.85rem; }
+        
+        /* 화분 이름 (왼쪽 영역) */
+        .plant-name { 
+            font-weight: bold; 
+            font-size: 0.95rem; 
+            flex-grow: 1; 
+        }
+        
+        /* 오른쪽 정보 영역 (날짜 + 버튼을 감싸서 일정한 위치 유지) */
+        .plant-right {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* 날짜와 버튼 사이 간격 */
+        }
+
+        /* 날짜 및 경과일 (고정 너비를 주어 항상 일정한 위치에 오도록 함) */
+        .plant-days { 
+            color: #666; 
+            font-size: 0.85rem; 
+            width: 75px; 
+            text-align: right; 
+        }
         
         button { 
             background: #4CAF50; 
@@ -32,6 +51,7 @@
             font-size: 0.85rem; 
             border-radius: 4px; 
             cursor: pointer; 
+            white-space: nowrap;
         }
         button:hover { background: #45a049; }
     </style>
@@ -86,11 +106,11 @@
                 const item = document.createElement('div');
                 item.className = 'plant-item';
                 item.innerHTML = `
-                    <div class="plant-info">
-                        <span class="name">${plant.name}</span>
-                        <span class="days">(${daysText})</span>
+                    <div class="plant-name">${plant.name}</div>
+                    <div class="plant-right">
+                        <span class="plant-days">${daysText}</span>
+                        <button onclick="waterPlant(${plant.id})">물 줌 💧</button>
                     </div>
-                    <button onclick="waterPlant(${plant.id})">물 줌 💧</button>
                 `;
                 listDiv.appendChild(item);
             });
