@@ -5,37 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>간결한 화분 관리</title>
     <style>
-        /* 전체 폭을 360px로 줄여서 요소를 오밀조밀하게 배치 */
-        body { font-family: sans-serif; max-width: 360px; margin: 15px auto; padding: 10px; background: #f9f9f9; color: #333; }
-        h1 { font-size: 1.1rem; text-align: center; margin-bottom: 15px; }
+        body { 
+            font-family: sans-serif; 
+            max-width: 400px; 
+            margin: 10px auto; 
+            padding: 0 12px; /* 좌우 여백 확보 */
+            background: #f9f9f9; 
+            color: #333; 
+        }
+        h1 { font-size: 1.1rem; text-align: center; margin: 12px 0; }
         #loading { text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 10px; }
         
         .plant-item { 
             background: #fff; 
-            padding: 7px 10px; 
+            padding: 6px 10px; 
             margin-bottom: 5px; 
             border-radius: 6px; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
             display: flex; 
-            justify-content: space-between; 
             align-items: center; 
+            justify-content: space-between;
         }
         
         .plant-name { 
             font-weight: bold; 
             font-size: 0.9rem; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 10px;
         }
         
+        /* 오른쪽 영역을 고정하여 이름과의 간격을 좁힘 */
         .plant-right {
             display: flex;
             align-items: center;
-            gap: 10px; 
+            gap: 8px; 
+            flex-shrink: 0; /* 우측 영역이 찌그러지지 않도록 고정 */
         }
 
         .plant-days { 
             color: #666; 
             font-size: 0.8rem; 
-            width: 55px; 
+            width: 50px; 
             text-align: right; 
         }
         
@@ -104,12 +116,18 @@
                 item.innerHTML = `
                     <div class="plant-name">${plant.name}</div>
                     <div class="plant-right">
-                        <span class="span-days plant-days">${daysText}</span>
+                        <span class="plant-days">${daysText}</span>
                         <button onclick="waterPlant(${plant.id})">물 줌 💧</button>
                     </div>
                 `;
                 listDiv.appendChild(item);
             });
+        }
+
+        // 화분 하나당 한 줄이 되도록 깔끔하게 포맷팅하는 함수
+        function formatJsonOneLinePerPlant(arr) {
+            const items = arr.map(p => JSON.stringify(p));
+            return "[\n  " + items.join(",\n  ") + "\n]";
         }
 
         async function waterPlant(id) {
@@ -120,7 +138,9 @@
             document.getElementById('loading').innerText = '저장 중...';
 
             try {
-                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(plants, null, 2))));
+                // 한 줄씩 정돈된 커스텀 JSON 포맷 적용
+                const formattedJson = formatJsonOneLinePerPlant(plants);
+                const updatedContent = btoa(unescape(encodeURIComponent(formattedJson)));
                 
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     method: 'PUT',
