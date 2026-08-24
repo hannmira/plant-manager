@@ -3,31 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub 연동 화분 관리</title>
+    <title>간결한 화분 관리</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; background: #f9f9f9; color: #333; }
-        h1 { font-size: 1.5rem; text-align: center; }
-        .plant-card { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .plant-info h3 { margin: 0 0 5px 0; }
-        .plant-info p { margin: 0; color: #666; font-size: 0.9rem; }
-        button { background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+        body { font-family: sans-serif; max-width: 500px; margin: 15px auto; padding: 10px; background: #f9f9f9; color: #333; }
+        h1 { font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
+        #loading { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 10px; }
+        
+        /* 컴팩트한 리스트 스타일 */
+        .plant-item { 
+            background: #fff; 
+            padding: 8px 12px; 
+            margin-bottom: 6px; 
+            border-radius: 6px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .plant-info { font-size: 0.95rem; }
+        .plant-info .name { font-weight: bold; margin-right: 8px; }
+        .plant-info .days { color: #666; font-size: 0.85rem; }
+        
+        button { 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            font-size: 0.85rem; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
         button:hover { background: #45a049; }
-        #loading { text-align: center; color: #666; }
     </style>
 </head>
 <body>
 
-    <h1>🌱 GitHub 연동 화분 관리</h1>
-    <div id="loading">데이터를 불러오는 중...</div>
+    <h1>🌱 화분 물 주기</h1>
+    <div id="loading">데이터 로딩 중...</div>
     <div id="plant-list"></div>
 
     <script>
         // 본인의 GitHub 정보로 수정하세요
-        const GITHUB_USER = "hannmira";
-        const REPO_NAME = "plant-manager";
+        const GITHUB_USER = "본인아이디";
+        const REPO_NAME = "레포지토리이름";
         const FILE_PATH = "plants.json";
         
-        // GitHub 토큰 (localStorage에 저장해두고 재사용)
         let token = localStorage.getItem('gh_token');
         if (!token) {
             token = prompt("GitHub Personal Access Token을 입력하세요 (최초 1회):");
@@ -35,58 +55,53 @@
         }
 
         let plants = [];
-        let fileSha = ""; // GitHub API 업데이트를 위한 파일 SHA 값
+        let fileSha = "";
 
-        // GitHub에서 JSON 파일 불러오기
         async function loadData() {
             try {
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     headers: { Authorization: `token ${token}` }
                 });
-                if (!res.ok) throw new Error('데이터를 불러오지 못했습니다. 토큰이나 경로를 확인하세요.');
+                if (!res.ok) throw new Error('데이터 로드 실패');
                 
                 const data = await res.json();
-                fileSha = data.sha; // 나중에 수정할 때 필요한 고유값
-                
-                // Base64로 코딩된 파일 내용을 디코딩
-                const decodedJson = decodeURIComponent(escape(atob(data.content)));
-                plants = JSON.parse(decodedJson);
+                fileSha = data.sha;
+                plants = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 
                 document.getElementById('loading').style.display = 'none';
                 render();
             } catch (err) {
-                document.getElementById('loading').innerText = `오류 발생: ${err.message}`;
+                document.getElementById('loading').innerText = `오류: ${err.message}`;
             }
         }
 
-        // 화면에 목록 그리기
         function render() {
             const listDiv = document.getElementById('plant-list');
             listDiv.innerHTML = '';
 
             plants.forEach(plant => {
                 const daysAgo = calculateDaysAgo(plant.lastWatered);
+                const daysText = daysAgo === 0 ? '오늘' : `${daysAgo}일 전`;
                 
-                const card = document.createElement('div');
-                card.className = 'plant-card';
-                card.innerHTML = `
+                const item = document.createElement('div');
+                item.className = 'plant-item';
+                item.innerHTML = `
                     <div class="plant-info">
-                        <h3>${plant.name}</h3>
-                        <p>마지막으로 물 준 날: ${plant.lastWatered} (<strong>${daysAgo === 0 ? '오늘' : daysAgo + '일 전'}</strong>)</p>
+                        <span class="name">${plant.name}</span>
+                        <span class="days">(${daysText})</span>
                     </div>
-                    <button onclick="waterPlant(${plant.id})">오늘 물 줌 💧</button>
+                    <button onclick="waterPlant(${plant.id})">물 줌 💧</button>
                 `;
-                listDiv.appendChild(card);
+                listDiv.appendChild(item);
             });
         }
 
-        // 물 준 날짜 업데이트 후 GitHub에 자동 커밋
         async function waterPlant(id) {
             const today = new Date().toISOString().split('T')[0];
             plants = plants.map(p => p.id === id ? { ...p, lastWatered: today } : p);
 
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('loading').innerText = 'GitHub에 저장 중...';
+            document.getElementById('loading').innerText = '저장 중...';
 
             try {
                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(plants, null, 2))));
@@ -98,22 +113,21 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        message: `Update plant water status: ${today}`,
+                        message: `Watered plant ID ${id}`,
                         content: updatedContent,
                         sha: fileSha
                     })
                 });
 
-                if (!res.ok) throw new Error('GitHub 저장 실패');
+                if (!res.ok) throw new Error('저장 실패');
 
                 const resData = await res.json();
-                fileSha = resData.content.sha; // 다음 수정을 위해 SHA 갱신
+                fileSha = resData.content.sha;
                 
                 document.getElementById('loading').style.display = 'none';
                 render();
-                alert('성공적으로 저장되었습니다!');
             } catch (err) {
-                alert(`저장 중 오류가 발생했습니다: ${err.message}`);
+                alert(`오류: ${err.message}`);
                 document.getElementById('loading').style.display = 'none';
             }
         }
@@ -123,11 +137,9 @@
             const today = new Date();
             today.setHours(0,0,0,0);
             last.setHours(0,0,0,0);
-            const diffTime = today - last;
-            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return Math.floor((today - last) / (1000 * 60 * 60 * 24));
         }
 
-        // 실행
         loadData();
     </script>
 </body>
