@@ -3,43 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>정렬된 화분 관리</title>
+    <title>간결한 화분 관리</title>
     <style>
-        body { font-family: sans-serif; max-width: 500px; margin: 15px auto; padding: 10px; background: #f9f9f9; color: #333; }
-        h1 { font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
-        #loading { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 10px; }
+        /* 전체 폭을 360px로 줄여서 요소를 오밀조밀하게 배치 */
+        body { font-family: sans-serif; max-width: 360px; margin: 15px auto; padding: 10px; background: #f9f9f9; color: #333; }
+        h1 { font-size: 1.1rem; text-align: center; margin-bottom: 15px; }
+        #loading { text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 10px; }
         
-        /* 컴팩트하고 정렬된 리스트 스타일 */
         .plant-item { 
             background: #fff; 
-            padding: 8px 12px; 
-            margin-bottom: 6px; 
+            padding: 7px 10px; 
+            margin-bottom: 5px; 
             border-radius: 6px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
         }
         
-        /* 화분 이름 (왼쪽 영역) */
         .plant-name { 
             font-weight: bold; 
-            font-size: 0.95rem; 
-            flex-grow: 1; 
+            font-size: 0.9rem; 
         }
         
-        /* 오른쪽 정보 영역 (날짜 + 버튼을 감싸서 일정한 위치 유지) */
         .plant-right {
             display: flex;
             align-items: center;
-            gap: 12px; /* 날짜와 버튼 사이 간격 */
+            gap: 10px; 
         }
 
-        /* 날짜 및 경과일 (고정 너비를 주어 항상 일정한 위치에 오도록 함) */
         .plant-days { 
             color: #666; 
-            font-size: 0.85rem; 
-            width: 75px; 
+            font-size: 0.8rem; 
+            width: 55px; 
             text-align: right; 
         }
         
@@ -47,8 +43,8 @@
             background: #4CAF50; 
             color: white; 
             border: none; 
-            padding: 5px 10px; 
-            font-size: 0.85rem; 
+            padding: 4px 8px; 
+            font-size: 0.8rem; 
             border-radius: 4px; 
             cursor: pointer; 
             white-space: nowrap;
@@ -108,7 +104,7 @@
                 item.innerHTML = `
                     <div class="plant-name">${plant.name}</div>
                     <div class="plant-right">
-                        <span class="plant-days">${daysText}</span>
+                        <span class="span-days plant-days">${daysText}</span>
                         <button onclick="waterPlant(${plant.id})">물 줌 💧</button>
                     </div>
                 `;
