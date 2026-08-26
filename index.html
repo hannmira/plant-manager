@@ -14,14 +14,12 @@
             color: #333; 
         }
         
-        /* 제목과 로딩 문구를 같은 줄에 나란히 배치 */
+        /* 제목은 왼쪽 끝, 로딩 문구는 오른쪽 끝 정렬 */
         .header-container {
             display: flex;
             align-items: baseline;
-            justify-content: center;
-            gap: 8px;
+            justify-content: space-between;
             margin-bottom: 15px;
-            position: relative;
         }
 
         h1 { 
@@ -29,12 +27,11 @@
             margin: 0; 
         }
         
-        /* 제목 오른쪽에 작고 연한 글씨로 표시 */
+        /* 오른쪽 끝에 작고 연한 글씨로 표시 */
         #loading { 
             font-size: 0.75rem;
             color: #999;
             font-weight: normal;
-            /* display: none 대신 visibility를 써서 레이아웃 밀림 방지 */
             visibility: visible; 
             white-space: nowrap;
         }
