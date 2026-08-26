@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>화분 관리</title>
     <style>
-        /* 컨텐츠 폭을 300px로 좁게 잡고 중앙 정렬 */
         body { 
             font-family: sans-serif; 
             max-width: 300px; 
@@ -14,8 +13,34 @@
             background: #f9f9f9; 
             color: #333; 
         }
-        h1 { font-size: 1.1rem; text-align: center; margin-bottom: 15px; }
-        #loading { text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 10px; }
+        
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        h1 { 
+            font-size: 1.1rem; 
+            margin: 0; 
+            text-align: center; 
+        }
+        
+        /* 레이아웃 밀림 방지를 위해 화면 우측 하단에 고정 표시 */
+        #loading { 
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
         
         .plant-item { 
             background: #fff; 
@@ -59,12 +84,15 @@
 </head>
 <body>
 
-    <h1>🌱 화분 물 주기</h1>
+    <div class="header-container">
+        <h1>🌱 화분 물 주기</h1>
+    </div>
+
+    <!-- 고정 포지션으로 위치가 밀리지 않음 -->
     <div id="loading">데이터 로딩 중...</div>
     <div id="plant-list"></div>
 
     <script>
-        // 본인의 GitHub 정보로 수정하세요
         const GITHUB_USER = "hannmira";
         const REPO_NAME = "plant-manager";
         const FILE_PATH = "plants.json";
@@ -100,7 +128,7 @@
             const listDiv = document.getElementById('plant-list');
             listDiv.innerHTML = '';
         
-            plants.forEach((plant, index) => { // index 추가
+            plants.forEach((plant, index) => {
                 const daysAgo = calculateDaysAgo(plant.lastWatered);
                 const daysText = daysAgo === 0 ? '오늘' : `${daysAgo}일 전`;
                 
@@ -110,23 +138,21 @@
                     <div class="plant-name">${plant.name}</div>
                     <div class="plant-right">
                         <span class="plant-days">${daysText}</span>
-                        <button onclick="waterPlant(${index})">💧</button> <!-- id 대신 index 전달 -->
+                        <button onclick="waterPlant(${index})">💧</button>
                     </div>
                 `;
                 listDiv.appendChild(item);
             });
         }
 
-        // 화분 하나당 한 줄이 되도록 깔끔하게 포맷팅하는 함수
         function formatJsonOneLinePerPlant(arr) {
             const items = arr.map(p => JSON.stringify(p));
             return "[\n  " + items.join(",\n  ") + "\n]";
         }
 
-        async function waterPlant(index) { // id 대신 index 받기
+        async function waterPlant(index) {
             const today = new Date().toISOString().split('T')[0];
             
-            // 해당 순번의 화분만 날짜 업데이트
             plants[index].lastWatered = today;
         
             document.getElementById('loading').style.display = 'block';
