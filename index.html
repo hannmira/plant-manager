@@ -14,32 +14,29 @@
             color: #333; 
         }
         
+        /* 제목과 로딩 문구를 같은 줄에 나란히 배치 */
         .header-container {
             display: flex;
+            align-items: baseline;
             justify-content: center;
-            align-items: center;
-            position: relative;
+            gap: 8px;
             margin-bottom: 15px;
+            position: relative;
         }
 
         h1 { 
             font-size: 1.1rem; 
             margin: 0; 
-            text-align: center; 
         }
         
-        /* 레이아웃 밀림 방지를 위해 화면 우측 하단에 고정 표시 */
+        /* 제목 오른쪽에 작고 연한 글씨로 표시 */
         #loading { 
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            font-size: 0.8rem;
-            padding: 6px 12px;
-            border-radius: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            z-index: 1000;
+            font-size: 0.75rem;
+            color: #999;
+            font-weight: normal;
+            /* display: none 대신 visibility를 써서 레이아웃 밀림 방지 */
+            visibility: visible; 
+            white-space: nowrap;
         }
         
         .plant-item { 
@@ -86,10 +83,10 @@
 
     <div class="header-container">
         <h1>🌱 화분 물 주기</h1>
+        <!-- 제목 옆에 작고 연하게 배치 -->
+        <span id="loading">데이터 로딩 중...</span>
     </div>
 
-    <!-- 고정 포지션으로 위치가 밀리지 않음 -->
-    <div id="loading">데이터 로딩 중...</div>
     <div id="plant-list"></div>
 
     <script>
@@ -106,21 +103,34 @@
         let plants = [];
         let fileSha = "";
 
+        // 로딩 상태 제어 함수 (visibility 사용으로 위치 밀림 차단)
+        function showLoading(text) {
+            const loadingEl = document.getElementById('loading');
+            loadingEl.innerText = text;
+            loadingEl.style.visibility = 'visible';
+        }
+
+        function hideLoading() {
+            const loadingEl = document.getElementById('loading');
+            loadingEl.style.visibility = 'hidden';
+        }
+
         async function loadData() {
             try {
+                showLoading('데이터 로딩 중...');
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     headers: { Authorization: `token ${token}` }
                 });
-                if (!res.ok) throw new Error('데이터 로드 실패');
+                if (!res.ok) throw new Error('로드 실패');
                 
                 const data = await res.json();
                 fileSha = data.sha;
                 plants = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 
-                document.getElementById('loading').style.display = 'none';
+                hideLoading();
                 render();
             } catch (err) {
-                document.getElementById('loading').innerText = `오류: ${err.message}`;
+                showLoading(`오류: ${err.message}`);
             }
         }
 
@@ -152,11 +162,9 @@
 
         async function waterPlant(index) {
             const today = new Date().toISOString().split('T')[0];
-            
             plants[index].lastWatered = today;
         
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('loading').innerText = '저장 중...';
+            showLoading('저장 중...');
         
             try {
                 const formattedJson = formatJsonOneLinePerPlant(plants);
@@ -180,11 +188,11 @@
                 const resData = await res.json();
                 fileSha = resData.content.sha;
                 
-                document.getElementById('loading').style.display = 'none';
+                hideLoading();
                 render();
             } catch (err) {
                 alert(`오류: ${err.message}`);
-                document.getElementById('loading').style.display = 'none';
+                hideLoading();
             }
         }
 
