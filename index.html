@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>간결한 화분 관리</title>
+    <title>화분 관리</title>
     <style>
         /* 컨텐츠 폭을 300px로 좁게 잡고 중앙 정렬 */
         body { 
@@ -99,8 +99,8 @@
         function render() {
             const listDiv = document.getElementById('plant-list');
             listDiv.innerHTML = '';
-
-            plants.forEach(plant => {
+        
+            plants.forEach((plant, index) => { // index 추가
                 const daysAgo = calculateDaysAgo(plant.lastWatered);
                 const daysText = daysAgo === 0 ? '오늘' : `${daysAgo}일 전`;
                 
@@ -110,7 +110,7 @@
                     <div class="plant-name">${plant.name}</div>
                     <div class="plant-right">
                         <span class="plant-days">${daysText}</span>
-                        <button onclick="waterPlant(${plant.id})">💧</button>
+                        <button onclick="waterPlant(${index})">💧</button> <!-- id 대신 index 전달 -->
                     </div>
                 `;
                 listDiv.appendChild(item);
@@ -123,15 +123,16 @@
             return "[\n  " + items.join(",\n  ") + "\n]";
         }
 
-        async function waterPlant(id) {
+        async function waterPlant(index) { // id 대신 index 받기
             const today = new Date().toISOString().split('T')[0];
-            plants = plants.map(p => p.id === id ? { ...p, lastWatered: today } : p);
-
+            
+            // 해당 순번의 화분만 날짜 업데이트
+            plants[index].lastWatered = today;
+        
             document.getElementById('loading').style.display = 'block';
             document.getElementById('loading').innerText = '저장 중...';
-
+        
             try {
-                // 한 줄씩 정돈된 커스텀 JSON 포맷 적용
                 const formattedJson = formatJsonOneLinePerPlant(plants);
                 const updatedContent = btoa(unescape(encodeURIComponent(formattedJson)));
                 
@@ -142,14 +143,14 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        message: `Watered plant ID ${id}`,
+                        message: `Watered plant index ${index}`,
                         content: updatedContent,
                         sha: fileSha
                     })
                 });
 
                 if (!res.ok) throw new Error('저장 실패');
-
+        
                 const resData = await res.json();
                 fileSha = resData.content.sha;
                 
