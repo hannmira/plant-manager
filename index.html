@@ -7,44 +7,47 @@
     <style>
         body { 
             font-family: sans-serif; 
-            max-width: 300px; 
-            margin: 20px auto; 
-            padding: 0 20px; 
-            background: #f9f9f9; 
-            color: #333; 
+            max-width: 310px; 
+            margin: 24px auto; 
+            padding: 0 16px; 
+            background: #F8F9FA; 
+            color: #212529; 
         }
         
         .header-container {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
-        h1 { font-size: 1.1rem; margin: 0; }
+        h1 { font-size: 1.15rem; font-weight: 700; margin: 0; color: #0F172A; }
         
         #loading { 
             font-size: 0.75rem;
-            color: #999;
-            font-weight: normal;
+            color: #94A3B8;
+            font-weight: 500;
             visibility: visible; 
             white-space: nowrap;
         }
         
+        /* 화분 카드 레이아웃 */
         .plant-item { 
-            background: #fff; 
-            padding: 6px 10px; 
-            margin-bottom: 5px; 
-            border-radius: 6px; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+            background: #FFFFFF; 
+            padding: 10px 14px; 
+            margin-bottom: 8px; 
+            border-radius: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03); 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
+            border: 1px solid #F1F5F9;
         }
         
         .plant-name { 
-            font-weight: bold; 
-            font-size: 0.9rem; 
+            font-weight: 600; 
+            font-size: 0.88rem; 
+            color: #334155;
         }
         
         .plant-right {
@@ -53,26 +56,44 @@
             gap: 8px; 
         }
 
-        /* 날짜 시각화 동적 뱃지 */
+        /* 매끈한 알약(Pill) 모양 뱃지 */
         .plant-days { 
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 3px 8px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+            letter-spacing: -0.2px;
+            display: inline-block;
         }
         
+        /* 완전한 원형(Circle) 물방울 버튼 */
         button { 
-            background: #D1E7C8; 
-            color: white; 
+            background: #E0F2FE; 
+            color: #0284C7; 
             border: none; 
-            padding: 4px 8px; 
-            font-size: 0.8rem; 
-            border-radius: 4px; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; /* 완전한 원 */
+            font-size: 0.85rem; 
             cursor: pointer; 
-            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
         }
-        button:hover { background: #BDDDB1; }
+        
+        button:hover { 
+            background: #BAE6FD; 
+            transform: scale(1.08);
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -128,21 +149,13 @@
             }
         }
 
-        /**
-         * 경과 일수(days)에 따른 점진적 HSL 색상 추출 함수
-         * @param {number} days - 물 준 지 지난 일수
-         * @returns {object} { bg: 배경색, color: 글자색 }
-         */
         function getDynamicColor(days) {
-            const maxDays = 14; // 색상이 완전히 빨간색이 되는 기준 일수
-            
-            // 120(초록) ~ 0(빨강) 사이값 계산
+            const maxDays = 14; 
             const ratio = Math.min(days / maxDays, 1);
-            const hue = Math.round(120 * (1 - ratio)); 
+            const hue = Math.round(130 * (1 - ratio));
 
-            // 배경은 파스텔 톤(채도 70%, 명도 90%), 글자색은 가독성 좋은 어두운 톤(채도 80%, 명도 25%)
-            const bg = `hsl(${hue}, 70%, 90%)`;
-            const color = `hsl(${hue}, 80%, 25%)`;
+            const bg = `hsl(${hue}, 80%, 93%)`;
+            const color = `hsl(${hue}, 70%, 30%)`;
 
             return { bg, color };
         }
@@ -154,8 +167,6 @@
             plants.forEach((plant, index) => {
                 const daysAgo = calculateDaysAgo(plant.lastWatered);
                 const daysText = daysAgo === 0 ? '오늘' : `${daysAgo}일 전`;
-                
-                // 점진적 HSL 색상 계산
                 const style = getDynamicColor(daysAgo);
 
                 const item = document.createElement('div');
@@ -166,7 +177,7 @@
                         <span class="plant-days" style="background-color: ${style.bg}; color: ${style.color};">
                             ${daysText}
                         </span>
-                        <button onclick="waterPlant(${index})">💧</button>
+                        <button onclick="waterPlant(${index})" title="오늘 물 주기">💧</button>
                     </div>
                 `;
                 listDiv.appendChild(item);
