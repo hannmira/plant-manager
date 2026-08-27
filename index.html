@@ -14,7 +14,6 @@
             color: #333; 
         }
         
-        /* 제목은 왼쪽 끝, 로딩 문구는 오른쪽 끝 정렬 */
         .header-container {
             display: flex;
             align-items: baseline;
@@ -22,12 +21,8 @@
             margin-bottom: 15px;
         }
 
-        h1 { 
-            font-size: 1.1rem; 
-            margin: 0; 
-        }
+        h1 { font-size: 1.1rem; margin: 0; }
         
-        /* 오른쪽 끝에 작고 연한 글씨로 표시 */
         #loading { 
             font-size: 0.75rem;
             color: #999;
@@ -58,9 +53,13 @@
             gap: 8px; 
         }
 
+        /* 날짜 시각화 동적 뱃지 */
         .plant-days { 
-            color: #666; 
-            font-size: 0.8rem; 
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
         
         button { 
@@ -80,7 +79,6 @@
 
     <div class="header-container">
         <h1>🌱 화분 물 주기</h1>
-        <!-- 제목 옆에 작고 연하게 배치 -->
         <span id="loading">데이터 로딩 중...</span>
     </div>
 
@@ -100,7 +98,6 @@
         let plants = [];
         let fileSha = "";
 
-        // 로딩 상태 제어 함수 (visibility 사용으로 위치 밀림 차단)
         function showLoading(text) {
             const loadingEl = document.getElementById('loading');
             loadingEl.innerText = text;
@@ -131,6 +128,25 @@
             }
         }
 
+        /**
+         * 경과 일수(days)에 따른 점진적 HSL 색상 추출 함수
+         * @param {number} days - 물 준 지 지난 일수
+         * @returns {object} { bg: 배경색, color: 글자색 }
+         */
+        function getDynamicColor(days) {
+            const maxDays = 14; // 색상이 완전히 빨간색이 되는 기준 일수
+            
+            // 120(초록) ~ 0(빨강) 사이값 계산
+            const ratio = Math.min(days / maxDays, 1);
+            const hue = Math.round(120 * (1 - ratio)); 
+
+            // 배경은 파스텔 톤(채도 70%, 명도 90%), 글자색은 가독성 좋은 어두운 톤(채도 80%, 명도 25%)
+            const bg = `hsl(${hue}, 70%, 90%)`;
+            const color = `hsl(${hue}, 80%, 25%)`;
+
+            return { bg, color };
+        }
+
         function render() {
             const listDiv = document.getElementById('plant-list');
             listDiv.innerHTML = '';
@@ -139,12 +155,17 @@
                 const daysAgo = calculateDaysAgo(plant.lastWatered);
                 const daysText = daysAgo === 0 ? '오늘' : `${daysAgo}일 전`;
                 
+                // 점진적 HSL 색상 계산
+                const style = getDynamicColor(daysAgo);
+
                 const item = document.createElement('div');
                 item.className = 'plant-item';
                 item.innerHTML = `
                     <div class="plant-name">${plant.name}</div>
                     <div class="plant-right">
-                        <span class="plant-days">${daysText}</span>
+                        <span class="plant-days" style="background-color: ${style.bg}; color: ${style.color};">
+                            ${daysText}
+                        </span>
                         <button onclick="waterPlant(${index})">💧</button>
                     </div>
                 `;
