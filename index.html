@@ -121,6 +121,9 @@
 
         let plants = [];
         let fileSha = "";
+        let saveTimer = null;
+        let isSaving = false;
+        let hasPendingChanges = false;
 
         function showLoading(text) {
             const loadingEl = document.getElementById('loading');
@@ -192,16 +195,34 @@
             return "[\n  " + items.join(",\n  ") + "\n]";
         }
 
-        async function waterPlant(index) {
+        function waterPlant(index) {
             const today = new Date().toISOString().split('T')[0];
             plants[index].lastWatered = today;
-        
+            render();
+            scheduleSave();
+        }
+
+        function scheduleSave() {
+            showLoading('저장 대기 중...');
+            if (saveTimer) clearTimeout(saveTimer);
+            saveTimer = setTimeout(saveData, 1500);
+        }
+
+        async function saveData() {
+            saveTimer = null;
+            if (isSaving) {
+                hasPendingChanges = true;
+                return;
+            }
+
+            isSaving = true;
+            hasPendingChanges = false;
             showLoading('저장 중...');
-        
+
             try {
                 const formattedJson = formatJsonOneLinePerPlant(plants);
                 const updatedContent = btoa(unescape(encodeURIComponent(formattedJson)));
-                
+
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     method: 'PUT',
                     headers: {
@@ -209,24 +230,37 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        message: `Watered plant index ${index}`,
+                        message: 'Update plant watering log',
                         content: updatedContent,
                         sha: fileSha
                     })
                 });
 
-                if (!res.ok) throw new Error('저장 실패');
-        
+                if (!res.ok) throw new Error(`저장 실패 (${res.status})`);
+
                 const resData = await res.json();
                 fileSha = resData.content.sha;
-                
-                hideLoading();
-                render();
+                isSaving = false;
+
+                if (hasPendingChanges) {
+                    scheduleSave();
+                } else {
+                    showLoading('저장 완료');
+                    setTimeout(hideLoading, 1200);
+                }
             } catch (err) {
-                alert(`오류: ${err.message}`);
-                hideLoading();
+                isSaving = false;
+                showLoading(`저장 오류: ${err.message}`);
+                console.error(err);
             }
         }
+
+        window.addEventListener('beforeunload', (e) => {
+            if (saveTimer || isSaving || hasPendingChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
         function calculateDaysAgo(dateString) {
             const last = new Date(dateString);
